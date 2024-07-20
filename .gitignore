@@ -12,6 +12,7 @@
 /*.log
 *.dSYM
 *.pch
+NEAT_Snake
 
 # Ignore compiled dynamic libraries
 *.dll
