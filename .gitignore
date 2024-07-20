@@ -1,0 +1,41 @@
+# Ignore build artifacts
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/Debian/
+/Makefile
+/*.cmake
+/*.a
+/*.o
+/*.obj
+/*.d
+/*.log
+*.dSYM
+*.pch
+
+# Ignore compiled dynamic libraries
+*.dll
+*.dylib
+*.so
+
+# Ignore IDE-specific files
+*.swp
+*.swo
+*.swn
+*.sublime-project
+*.sublime-workspace
+*.idea/
+*.vscode/
+*.xcodeproj
+*.xcworkspace
+*.cbp
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
