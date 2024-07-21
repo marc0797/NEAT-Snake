@@ -39,11 +39,25 @@ make
 ```
 3. Run the Executable:
 ```bash
-./NEAT-Snake player/ai
+./NEAT-Snake <player|ai> [-options]
 ```
 
 ## Usage
 
 When running the executable, indicate which game mode would you like to execute: `player` or `ai`, as an additional argument.
+
 If `player` is specified, a Snake game window will appear, and the game will start as soon as it detects a keyboard input.
 To play, use the keyboard arrows to turn left or right.
+
+**Additional options:**
+- Width: Set the width of the grid, with `-w <width>`.
+- Height: Set the height of the grid, with `-h <height>`.
+- FPS: Set the framerate of the game, with `-f <FPS>`.
+- Teleport: Allow the snake to teleport, with `-t`.
+- Window: Set the window size (for the moment, it is a square), with `-s <size>`.
+- Score: Display the score on the screen always, with `-z`.
+
+When the game is over, the screen is frozen unil the window is closed, or the player presses a key.
+If ***r*** is pressed, the game restarts with the same options.
+
+If `ai` is specified, the same Snake game window appears, but the controller is now the AI. (TO-DO).
