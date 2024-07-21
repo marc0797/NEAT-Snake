@@ -234,17 +234,17 @@ void init_options(int argc, char **argv) {
         if (std::string(argv[i]) == "-h") {
             printf("Usage: ./NEAT_Snake <player|ai> [-options]\n");
             printf("Options:\n");
-            printf("  -w <width>    Set the width of the game board (default 30)\n");
-            printf("  -h <height>   Set the height of the game board (default 30)\n");
+            printf("  -x <width>    Set the width of the game board (default 30)\n");
+            printf("  -y <height>   Set the height of the game board (default 30)\n");
             printf("  -f <fps>      Set the target frames per second (default 15)\n");
             printf("  -t            Allow the snake to teleport\n");
             printf("  -s <size>     Set the window size (default 800)\n");
             printf("  -z            Display the score always\n");
             printf("  -h            Display this help message\n");
             exit(0);
-        } else if (std::string(argv[i]) == "-w") {
+        } else if (std::string(argv[i]) == "-x") {
             WIDTH = std::stoi(argv[++i]);
-        } else if (std::string(argv[i]) == "-h") {
+        } else if (std::string(argv[i]) == "-y") {
             HEIGHT = std::stoi(argv[++i]);
         } else if (std::string(argv[i]) == "-f") {
             FPS = std::stod(argv[++i]);
