@@ -8,10 +8,13 @@
 // Game configuration
 static int WIDTH = 30;
 static int HEIGHT = 30;
-static double FPS = 10.0;
+static double FPS = 15.0;
 static bool ALLOW_TELEPORT = false;
+static bool SCORE = false;
 static int window_size = 800;
 
+// Function to parse command line arguments
+void init_options(int argc, char **argv);
 
 // Define the GameRendererConfig class
 class GameRendererConfig {
@@ -62,6 +65,9 @@ class GameRenderer {
             draw_grid();
             draw_snake();
             draw_food();
+            if (SCORE) {
+                draw_score();
+            }
         }
 
         void draw_grid() {
@@ -105,6 +111,18 @@ class GameRenderer {
             draw_field(engine._food(), config.food_color);
         }
 
+        void draw_score() {
+            sf::Font font;
+            font.loadFromFile("assets/Arial.ttf");
+            sf::Text text;
+            text.setFont(font);
+            text.setString("Score: " + std::to_string(engine._score()));
+            text.setCharacterSize(24);
+            text.setFillColor(sf::Color::White);
+            text.setPosition(10, 10);
+            window.draw(text);
+        }
+
         void draw_field(Coordinates c, sf::Color color) {
             sf::RectangleShape shape{};
             shape.setSize(config.field_size);
@@ -133,9 +151,12 @@ class GameRenderer {
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        printf("Usage: ./NEAT_Snake <player|ai>\n");
+        printf("Usage: ./NEAT_Snake <player|ai> [-options]\nUse -h for help\n");
         return -1;
     }
+
+    // Get init options
+    init_options(argc, argv);
 
     sf::RenderWindow window(
         sf::VideoMode(window_size, window_size), 
@@ -143,7 +164,7 @@ int main(int argc, char **argv) {
 
     auto controller = make_controller(argv[1]);
     Ticker ticker{FPS};
-    SnakeEngine engine{WIDTH, HEIGHT};
+    SnakeEngine engine{WIDTH, HEIGHT, ALLOW_TELEPORT};
     GameRenderer renderer{window, engine, GameRendererConfig{}};
     GameState state = GameState::Running;
 
@@ -190,7 +211,8 @@ int main(int argc, char **argv) {
                     return 0;
                 } else if (event.type == sf::Event::KeyPressed) {
                     if (event.key.code == sf::Keyboard::R) {
-                        engine = SnakeEngine{WIDTH, HEIGHT};
+                        engine = SnakeEngine{WIDTH, HEIGHT, 
+                            ALLOW_TELEPORT};
                         state = GameState::Running;
                         break;
                     } else {
@@ -205,4 +227,36 @@ int main(int argc, char **argv) {
         window.display();
     }
     return 0;
+}
+
+void init_options(int argc, char **argv) {
+    for (int i = 2; i < argc; i++) {
+        if (std::string(argv[i]) == "-h") {
+            printf("Usage: ./NEAT_Snake <player|ai> [-options]\n");
+            printf("Options:\n");
+            printf("  -w <width>    Set the width of the game board (default 30)\n");
+            printf("  -h <height>   Set the height of the game board (default 30)\n");
+            printf("  -f <fps>      Set the target frames per second (default 15)\n");
+            printf("  -t            Allow the snake to teleport\n");
+            printf("  -s <size>     Set the window size (default 800)\n");
+            printf("  -z            Display the score always\n");
+            printf("  -h            Display this help message\n");
+            exit(0);
+        } else if (std::string(argv[i]) == "-w") {
+            WIDTH = std::stoi(argv[++i]);
+        } else if (std::string(argv[i]) == "-h") {
+            HEIGHT = std::stoi(argv[++i]);
+        } else if (std::string(argv[i]) == "-f") {
+            FPS = std::stod(argv[++i]);
+        } else if (std::string(argv[i]) == "-t") {
+            ALLOW_TELEPORT = true;
+        } else if (std::string(argv[i]) == "-s") {
+            window_size = std::stoi(argv[++i]);
+        } else if (std::string(argv[i]) == "-z") {
+            SCORE = true;
+        } else {
+            printf("Unknown option: %s\n", argv[i]);
+            exit(1);
+        }
+    }
 }

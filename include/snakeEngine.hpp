@@ -106,6 +106,19 @@ class SnakeEngine {
             auto tail = snake.body.back();
             snake.body.pop_back();
 
+            // Check if the snake teleports
+            if (allow_teleport) {
+                if (new_head.row < 0) {
+                    new_head.row = height - 1;
+                } else if (new_head.row >= height) {
+                    new_head.row = 0;
+                } else if (new_head.col < 0) {
+                    new_head.col = width - 1;
+                } else if (new_head.col >= width) {
+                    new_head.col = 0;
+                }
+            }
+
             if (hits_wall(new_head) || hits_snake(new_head)) {
                 return GameState::GameOver;
             }
