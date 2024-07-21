@@ -57,8 +57,11 @@ class SnakeEngine {
         // Constructor with default values
         SnakeEngine(int width = 20, int height = 20, bool allow_teleport = false)
             : width(width), height(height), allow_teleport(allow_teleport), score(0) {
-            // Initialize the snake with 3 segments at the center of the board
-            snake.body.push_back({height / 2, width / 2});
+            // Initialize the snake with 3 segments at
+            // a random position in the middle of the board
+            int row = RNG{}.next_int(height - 1);
+            int col = RNG{}.next_int(width - 1);
+            snake.body.push_back({row, col});
             snake.grow = 2;
 
             // Random direction for the snake
@@ -86,6 +89,11 @@ class SnakeEngine {
         // Returns the food
         const Coordinates& _food() const {
             return food;
+        }
+
+        // Returns the score
+        int _score() const {
+            return score;
         }
 
         // Process the action and update the game state
@@ -173,13 +181,13 @@ class SnakeEngine {
             auto head = snake.head();
             switch (direction) {
                 case Direction::Up:
-                    return {head.row, head.col - 1};
-                case Direction::Down:
-                    return {head.row, head.col + 1};
-                case Direction::Left:
                     return {head.row - 1, head.col};
-                case Direction::Right:
+                case Direction::Down:
                     return {head.row + 1, head.col};
+                case Direction::Left:
+                    return {head.row, head.col - 1};
+                case Direction::Right:
+                    return {head.row, head.col + 1};
             }
         }
 

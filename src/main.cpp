@@ -1,6 +1,16 @@
 #include <SFML/Graphics.hpp>
 #include "snakeEngine.hpp"
 #include "hsv_color.hpp"
+#include "controller.hpp"
+#include "ticker.hpp"
+#include <cassert>
+
+// Game configuration
+static int WIDTH = 30;
+static int HEIGHT = 30;
+static double FPS = 10.0;
+static bool ALLOW_TELEPORT = false;
+static int window_size = 800;
 
 
 // Define the GameRendererConfig class
@@ -43,7 +53,7 @@ class GameRenderer {
             config.field_offset = {1, 1};
             config.background_color = { 23, 23, 33 };
             config.stroke_color = { 57, 57, 67 };
-            config.snake_color = { 0, 112, 246 };
+            config.snake_color = { 228, 63, 63 };
             config.food_color = { 72, 201, 176 };
         }
 
@@ -68,11 +78,26 @@ class GameRenderer {
             }
         }
 
+        sf::Color luminance_wheel(sf::Color base, double position,
+                            double min = 0.5, double max = 0.75) {
+            auto hsv = HsvColor::from_rgb(base);
+            hsv.v = min + (max - min) * position;
+            assert(hsv.v >= 0.0 && hsv.v <= 1.0);
+            return hsv.to_rgb();
+        }
+
+        sf::Color color_wheel(sf::Color base, double position) {
+            auto hsv = HsvColor::from_rgb(base);
+            hsv.h = fmod(hsv.h + 360 * position, 360);
+            return hsv.to_rgb();
+        }
+
         void draw_snake() {
             const auto &snake = engine._snake();
             for (int i = 0; i < snake.body.size(); i++) {
                 auto segment = snake.body[i];
-                draw_field(segment, config.snake_color);
+                double position = 1.0 - (double)i / (double)snake.body.size();
+                draw_field(segment, color_wheel(config.snake_color, position));
             }
         }
 
@@ -106,20 +131,76 @@ class GameRenderer {
         }
 };
 
-int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 800), "Snake Game");
-    SnakeEngine engine{20,20};
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        printf("Usage: ./NEAT_Snake <player|ai>\n");
+        return -1;
+    }
+
+    sf::RenderWindow window(
+        sf::VideoMode(window_size, window_size), 
+        "Snake Game");
+
+    auto controller = make_controller(argv[1]);
+    Ticker ticker{FPS};
+    SnakeEngine engine{WIDTH, HEIGHT};
     GameRenderer renderer{window, engine, GameRendererConfig{}};
+    GameState state = GameState::Running;
 
     while (window.isOpen()) {
-        sf::Event event;
+        sf::Event event{};
+
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             } else {
-                // Process events
+                controller->on_key_pressed(event);
             }
         }
+
+        if (ticker.tick()) {
+            state = engine.process(controller->get_action());
+        }
+
+        if (state != GameState::Running) {
+            // If state is win, print a message on the window, and freeze the screen
+            sf::Font font;
+            font.loadFromFile("assets/Arial.ttf");
+            sf::Text text;
+            text.setFont(font);
+            if (state == GameState::GameOver) {
+                text.setString("Game Over!\nFinal Score: " 
+                    + std::to_string(engine._score()));
+            } else {
+                text.setString("You Win!\nFinal Score: " 
+                    + std::to_string(engine._score()));
+            }
+            text.setCharacterSize(24);
+            text.setFillColor(sf::Color::White);
+            text.setPosition(window.getSize().x * 0.5f, 
+                window.getSize().y * 0.5f);
+            window.draw(text);
+            window.display();
+            // Wait for the window to be closed, or for the user to press a key.
+            // If 'r' is pressed, restart the game
+            sf::Event event{};
+            while (window.waitEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                    return 0;
+                } else if (event.type == sf::Event::KeyPressed) {
+                    if (event.key.code == sf::Keyboard::R) {
+                        engine = SnakeEngine{WIDTH, HEIGHT};
+                        state = GameState::Running;
+                        break;
+                    } else {
+                        window.close();
+                        return 0;
+                    }
+                }
+            }
+        }
+
         renderer.draw();
         window.display();
     }
