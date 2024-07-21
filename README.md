@@ -59,6 +59,6 @@ To play, use the keyboard arrows to turn left or right.
 - **Help**: Display the help message.
 
 When the game is over, the screen is frozen unil the window is closed, or the player presses a key.
-If ***r*** is pressed, the game restarts with the same options.
+If **R** is pressed, the game restarts with the same options.
 
 If `ai` is specified, the same Snake game window appears, but the controller is now the AI. (TO-DO).
