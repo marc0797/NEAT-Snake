@@ -36,11 +36,11 @@ double RNG::gaussian(double mean, double std) {
  * @param b The second value.
  * @return a if the random number is less than p, b otherwise.
  */
-template <typename T>
-T RNG::choose(double p, T a, T b) {
-    std::bernoulli_distribution dist(p);
-    return dist(gen) ? a : b;
-}
+// template <typename T>
+// T RNG::choose(double p, const T& a, const T& b) {
+//     std::bernoulli_distribution dist(p);
+//     return dist(gen) ? a : b;
+// }
 
 /**
  * Chooses a random element from a vector.
@@ -48,10 +48,10 @@ T RNG::choose(double p, T a, T b) {
  * @param vec The vector to choose from.
  * @return A reference to a random element in the vector.
  */
-template <typename T>
-T& RNG::choose_from(vector<T> &vec) {
-    return vec[next_int(vec.size() - 1)];
-}
+// template <typename T>
+// T& RNG::choose_from(vector<T> &vec) {
+//     return vec[next_int(vec.size() - 1)];
+// }
 
 /**
  * Chooses a random iterator from a vector.
@@ -59,7 +59,7 @@ T& RNG::choose_from(vector<T> &vec) {
  * @param vec The vector to choose from.
  * @return An iterator to a random element in the vector.
  */
-template <typename T>
-typename vector<T>::iterator RNG::choose_random(const vector<T> &vec) {
-    return vec.begin() + next_int(vec.size() - 1);
-}
+// template <typename T>
+// typename vector<T>::iterator RNG::choose_random(const vector<T> &vec) {
+//     return vec.begin() + next_int(vec.size() - 1);
+// }

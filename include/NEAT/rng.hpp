@@ -16,13 +16,20 @@ class RNG {
         double gaussian(double mean, double std);
 
         template <typename T>
-        T choose(double p, T a, T b);
+        T choose(double p, const T& a, const T& b) {
+            std::bernoulli_distribution dist(p);
+            return dist(gen) ? a : b;
+        }
 
         template <typename T>
-        T& choose_from(vector<T> &vec);
+        T& choose_from(vector<T> &vec) {
+            return vec[next_int(vec.size() - 1)];
+        }
 
         template <typename T>
-        typename vector<T>::iterator choose_random(const vector<T> &vec);
+        typename vector<T>::iterator choose_random(const vector<T> &vec) {
+            return vec.begin() + next_int(vec.size() - 1);
+        }
 
     private: 
         // Mersenne Twister engine

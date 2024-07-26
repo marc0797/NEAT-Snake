@@ -76,4 +76,7 @@ class LinkMutator {
 double new_value(double mean, double std);
 double clamp(double value, double min, double max);
 
+NeuronGene crossover_neuron(const NeuronGene &n1, const NeuronGene &n2);
+LinkGene crossover_link(const LinkGene &l1, const LinkGene &l2);
+
 #endif // NEAT_NEURON_GENE_HPP

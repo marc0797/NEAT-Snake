@@ -21,6 +21,7 @@ file(GLOB_RECURSE NEAT_HEADERS "include/NEAT/*.hpp")
 
 add_executable(NEAT_Snake ${SOURCES} ${HEADERS})
 add_executable(test_genes tests/testgenes.cpp ${NEAT_SOURCES} ${NEAT_HEADERS})
+add_executable(test_genome tests/testgenome.cpp ${NEAT_SOURCES} ${NEAT_HEADERS})
 
 # Link SFML libraries
 target_link_libraries(NEAT_Snake sfml-system sfml-window sfml-graphics)

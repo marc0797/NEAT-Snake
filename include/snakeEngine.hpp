@@ -5,7 +5,7 @@
 
 #include <algorithm>
 #include <deque>
-#include "rng.hpp"
+#include "NEAT/rng.hpp"
 
 // Define the Direction enum class
 enum class Direction {
