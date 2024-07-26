@@ -15,9 +15,12 @@ include_directories(include)
 
 # Add the executable
 file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE NEAT_SOURCES "src/NEAT/*.cpp")
 file(GLOB_RECURSE HEADERS "include/*.hpp")
+file(GLOB_RECURSE NEAT_HEADERS "include/NEAT/*.hpp")
 
 add_executable(NEAT_Snake ${SOURCES} ${HEADERS})
+add_executable(test_genes tests/testgenes.cpp ${NEAT_SOURCES} ${NEAT_HEADERS})
 
 # Link SFML libraries
 target_link_libraries(NEAT_Snake sfml-system sfml-window sfml-graphics)

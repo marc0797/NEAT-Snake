@@ -73,4 +73,7 @@ class LinkMutator {
         double max;
 };
 
+double new_value(double mean, double std);
+double clamp(double value, double min, double max);
+
 #endif // NEAT_NEURON_GENE_HPP
