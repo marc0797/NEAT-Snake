@@ -20,6 +20,25 @@ struct NeuronGene {
     int neuron_id;
     double bias;
     Activation activation;
+
+    void print() const {
+        string act;
+        switch (activation) {
+            case Activation::SIGMOID:
+                act = "SIGMOID";
+                break;
+            case Activation::TANH:
+                act = "TANH";
+                break;
+            case Activation::RELU:
+                act = "RELU";
+                break;
+            case Activation::SOFTMAX:
+                act = "SOFTMAX";
+                break;
+        }
+        std::cout << "Bias: " << bias << " Activation: " << act;
+    }
 };
 
 // LinkId gene
@@ -39,8 +58,13 @@ struct LinkGene {
     double weight;
     bool is_enabled;
 
-    bool has_neuron(vector<NeuronGene>::iterator it) {
+    bool has_neuron(vector<NeuronGene>::iterator it) const {
         return link_id.input_id == it->neuron_id || link_id.output_id == it->neuron_id;
+    }
+
+    void print() const {
+        std::cout << "Weight: " << weight << " Enabled: ";
+        std::cout << std::boolalpha << is_enabled;
     }
 };
 
@@ -49,6 +73,7 @@ class NeuronMutator {
     public:
         NeuronMutator(Config &config);
         NeuronGene new_neuron();
+        void mutate(NeuronGene &neuron);
     private:
         // For generating new neurons
         int index;
@@ -57,6 +82,11 @@ class NeuronMutator {
         double std;
         double min;
         double max;
+
+        // For mutating neurons
+        double mutation_rate;
+        double mutation_power;
+        double replace_rate;
 };
 
 // Link indexer and mutator
@@ -64,6 +94,7 @@ class LinkMutator {
     public:
         LinkMutator(Config &config);
         LinkGene new_link(int input_id, int output_id);
+        void mutate(LinkGene &link);
     private:
         // For generating new links
         int index;
@@ -71,6 +102,11 @@ class LinkMutator {
         double std;
         double min;
         double max;
+
+        // For mutating links
+        double mutation_rate;
+        double mutation_power;
+        double replace_rate;
 };
 
 double new_value(double mean, double std);

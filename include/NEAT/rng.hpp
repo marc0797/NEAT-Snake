@@ -13,6 +13,8 @@ class RNG {
 
         int next_int(int max, int min = 0);
 
+        double uniform(double min = 0.0, double max = 1.0);
+
         double gaussian(double mean, double std);
 
         template <typename T>
@@ -27,7 +29,7 @@ class RNG {
         }
 
         template <typename T>
-        typename vector<T>::iterator choose_random(const vector<T> &vec) {
+        typename vector<T>::iterator choose_random(vector<T> &vec) {
             return vec.begin() + next_int(vec.size() - 1);
         }
 

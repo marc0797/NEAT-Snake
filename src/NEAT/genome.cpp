@@ -86,7 +86,7 @@ int Genome::num_outputs() const {
     return _num_outputs;
 }
 
-int Genome::num_hidden() const {
+int& Genome::num_hidden() {
     return _num_hidden;
 }
 
@@ -116,7 +116,7 @@ const vector<LinkGene>& Genome::links() const {
  * @param neuron The neuron to add.
  */
 void Genome::add_neuron(const NeuronGene &neuron) {
-    _neurons.push_back(neuron);
+    neurons().push_back(neuron);
 }
 
 /**
@@ -126,7 +126,7 @@ void Genome::add_neuron(const NeuronGene &neuron) {
  * @return The neuron if found, nullopt otherwise.
  */
 optional<NeuronGene> Genome::find_neuron(int neuron_id) const {
-    for (const auto &neuron : _neurons) {
+    for (const auto &neuron : neurons()) {
         if (neuron.neuron_id == neuron_id) {
             return neuron;
         }
@@ -140,7 +140,7 @@ optional<NeuronGene> Genome::find_neuron(int neuron_id) const {
  * @param link The link to add.
  */
 void Genome::add_link(const LinkGene &link) {
-    _links.push_back(link);
+    links().push_back(link);
 }
 
 /**
@@ -150,12 +150,198 @@ void Genome::add_link(const LinkGene &link) {
  * @return The link if found, nullopt otherwise.
  */
 optional<LinkGene> Genome::find_link(const LinkId &link_id) const {
-    for (const auto &link : _links) {
+    for (const auto &link : links()) {
         if (link.link_id == link_id) {
             return link;
         }
     }
     return std::nullopt;
+}
+
+/**
+ * Mutate the genome.
+ * 
+ * @param config The configuration.
+ */
+void Genome::mutate(Config &config) {
+    // Get structural mutation rates from config
+    double neuron_add_prob = config.getDouble(
+        "DefaultGenome", 
+        "neuron_add_prob", 
+        0.03);
+    double neuron_del_prob = config.getDouble(
+        "DefaultGenome", 
+        "neuron_del_prob", 
+        0.01);
+    double link_add_prob = config.getDouble(
+        "DefaultGenome", 
+        "link_add_prob", 
+        0.05);
+    double link_del_prob = config.getDouble(
+        "DefaultGenome", 
+        "link_del_prob", 
+        0.01);
+    
+    // Get random probability
+    double p = RNG{}.uniform();
+
+    // Structural mutations
+    if (p < neuron_add_prob) {
+        // Add a neuron
+        mutate_add_neuron();
+    }
+
+    if (p < neuron_del_prob) {
+        // Remove a neuron
+        mutate_remove_neuron();
+    }
+
+    if (p < link_add_prob) {
+        // Add a link
+        mutate_add_link();
+    }
+
+    if (p < link_del_prob) {
+        // Remove a link
+        mutate_remove_link();
+    }
+
+    // Mutate link genes
+    for (auto &link : links()) {
+        link_mutator.mutate(link);
+    }
+
+    // Mutate neuron genes
+    for (auto &neuron : neurons()) {
+        neuron_mutator.mutate(neuron);
+    }
+}
+
+/**
+ * Structural mutation: Add a neuron.
+ * 
+ */
+void Genome::mutate_add_neuron() {
+    if (links().empty()) {
+        // No links to split
+        return;
+    }
+
+    // Choose a random link to split
+    RNG rng;
+    LinkGene &link = rng.choose_from(links());
+    // Disable the old link
+    link.is_enabled = false;
+
+    // Create a new neuron
+    NeuronGene neuron = neuron_mutator.new_neuron();
+    add_neuron(neuron);
+    num_hidden()++;
+
+    // Create two new links: input -> neuron with weight 1.0,
+    // neuron -> output with weight of the old link, both enabled
+    LinkId link_id = link.link_id;
+    double weight = link.weight;
+    add_link({{link_id.input_id, neuron.neuron_id}, 1.0, true});
+    add_link({{neuron.neuron_id, link_id.output_id}, weight, true});
+}
+
+/**
+ * Structural mutation: Remove a neuron.
+ * 
+ */
+void Genome::mutate_remove_neuron() {
+    if (num_hidden() == 0) {
+        // No hidden neurons to remove
+        return;
+    }
+
+    // Choose a random hidden neuron to remove
+    auto &neurons = this->neurons();
+    auto neuron_it = choose_random_hidden(neurons, num_outputs());
+
+    // Remove all links connected to the neuron
+    auto &links = this->links();
+    links.erase(
+        std::remove_if(
+            links.begin(),
+            links.end(),
+            [neuron_it](const LinkGene &link) {
+                return link.has_neuron(neuron_it);
+            }),
+        links.end());
+
+    // Remove the neuron
+    neurons.erase(neuron_it);
+    num_hidden()--;
+}
+
+/**
+ * Structural mutation: Add a link.
+ * 
+ */
+void Genome::mutate_add_link() {
+    // Get input and output links
+    int input_id = choose_random_input_or_hidden(neurons(),
+        num_outputs());
+    int output_id = choose_random_output_or_hidden(neurons());
+    LinkId link_id = {input_id, output_id};
+
+    // Avoid duplicate links
+    auto existing_link = find_link(link_id);
+    if (existing_link) {
+        // Enable it
+        existing_link->is_enabled = true;
+        return;
+    }
+
+    // Avoid cycles in the network
+    if (is_cyclic(links(), input_id, output_id)) {
+        return;
+    }
+
+    // Create a new link
+    LinkGene new_link = link_mutator.new_link(input_id, output_id);
+    add_link(new_link);
+}
+
+/**
+ * Structural mutation: Remove a link.
+ * 
+ */
+void Genome::mutate_remove_link() {
+    if (links().empty()) {
+        // No links to remove
+        return;
+    }
+
+    // Choose a random link to remove
+    RNG rng;
+    auto &links = this->links();
+    auto link_it = rng.choose_random(links);
+
+    // Remove the link
+    links.erase(link_it);
+}
+
+/**
+ * Print the genome.
+ * 
+ */
+void Genome::print() const {
+    cout << "Genome " << genome_id << endl;
+    cout << "Fitness: " << fitness() << endl;
+    cout << "Neurons:";
+    for (const auto &neuron : neurons()) {
+        cout << "\n\t" << neuron.neuron_id << " "; 
+        neuron.print();
+    }
+    cout << "\nLinks:";
+    for (const auto &link : links()) {
+        cout << "\n\t" << link.link_id.input_id << " -> " << link.link_id.output_id << " ";
+        link.print();
+    }
+    cout << "\n\n";
 }
 
 GenomeIndexer::GenomeIndexer() : index(0) {}
@@ -213,4 +399,79 @@ Genome crossover(const Genome &g1, const Genome &g2, Config &config, GenomeIndex
     }
 
     return offspring;
+}
+
+/** 
+ * Choose a random input or hidden neuron.
+ * 
+ * @param neurons The neurons to choose from.
+ * @param num_outputs The number of output neurons.
+ * @return The integer id of the chosen neuron.
+ */
+int choose_random_input_or_neuron(const vector<NeuronGene> &neurons, int num_outputs) {
+    RNG rng;
+    vector<int> input_or_hidden;
+    for (const auto &neuron : neurons) {
+        if (neuron.neuron_id < 0 || neuron.neuron_id >= num_outputs) {
+            input_or_hidden.push_back(neuron.neuron_id);
+        }
+    }
+    return rng.choose_from(input_or_hidden);
+}
+
+/** 
+ * Choose a random output or hidden neuron.
+ * 
+ * @param neurons The neurons to choose from.
+ * @return The integer id of the chosen neuron.
+ */
+int choose_random_output_or_neuron(const vector<NeuronGene> &neurons) {
+    RNG rng;
+    vector<int> output_or_hidden;
+    for (const auto &neuron : neurons) {
+        if (neuron.neuron_id >= 0) {
+            output_or_hidden.push_back(neuron.neuron_id);
+        }
+    }
+    return rng.choose_from(output_or_hidden);
+}
+
+/** 
+ * Choose a random hidden neuron.
+ * 
+ * @param neurons The neurons to choose from.
+ * @param num_outputs The number of output neurons.
+ * @return The iterator to the chosen neuron.
+ */
+vector<NeuronGene>::iterator choose_random_hidden(vector<NeuronGene> &neurons, int num_outputs) {
+    RNG rng;
+    vector<NeuronGene>::iterator it;
+    do {
+        it = rng.choose_random(neurons);
+    } while (it->neuron_id < num_outputs);
+    return it;
+}
+
+/** 
+ * Check if adding a link would create a cycle.
+ * 
+ * @param links The links in the genome.
+ * @param input_id The id of the input neuron.
+ * @param output_id The id of the output neuron.
+ * @return True if a cycle would be created, false otherwise.
+ */
+bool is_cyclic(const vector<LinkGene> &links, int input_id, int output_id) {
+    if (input_id == output_id) {
+        return true;
+    }
+
+    // Check if there is a path from output_id to input_id by recursion
+    for (const auto &link : links) {
+        if (link.link_id.input_id == output_id) {
+            if (is_cyclic(links, link.link_id.output_id, input_id)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

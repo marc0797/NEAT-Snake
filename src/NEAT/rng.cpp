@@ -17,6 +17,18 @@ int RNG::next_int(int max, int min) {
 }
 
 /**
+ * Generates a random double between min and max.
+ * 
+ * @param min The minimum value of the random double. DEFAULT 0.0.
+ * @param max The maximum value of the random double. DEFAULT 1.0.
+ * @return A random double between min and max.
+ */
+double RNG::uniform(double min, double max) {
+    std::uniform_real_distribution<double> dist(min, max);
+    return dist(gen);
+}
+
+/**
  * Generates a random double from a Gaussian distribution.
  * 
  * @param mean The mean of the Gaussian distribution.

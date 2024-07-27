@@ -27,6 +27,18 @@ NeuronMutator::NeuronMutator(Config &config) : index(0) {
         section,
         "bias_max",
         30.0);
+    mutation_rate = config.getDouble(
+        section,
+        "mutation_rate",
+        0.3);
+    mutation_power = config.getDouble(
+        section,
+        "mutation_power",
+        0.8);
+    replace_rate = config.getDouble(
+        section,
+        "replace_rate",
+        0.05);
 }
 
 NeuronGene NeuronMutator::new_neuron() {
@@ -34,6 +46,24 @@ NeuronGene NeuronMutator::new_neuron() {
     double bias = clamp(new_value(mean, std), min, max);
 
     return {index++, bias, activation};
+}
+
+void NeuronMutator::mutate(NeuronGene &neuron) {
+    RNG rng;
+    double p = rng.uniform();
+    
+    // Mutate the bias value
+    if (p < replace_rate) {
+        neuron.bias = clamp(new_value(mean, std), min, max);
+    } else if (p < mutation_rate + replace_rate) {
+        double delta = clamp(rng.gaussian(0.0, mutation_power), min, max);
+        neuron.bias = clamp(neuron.bias + delta, min, max);
+    }
+
+    // Mutate the neuron's activation function
+    if (rng.uniform() < mutation_rate) {
+        neuron.activation = (Activation) rng.next_int(3);
+    }
 }
 
 LinkMutator::LinkMutator(Config &config) : index(0) {
@@ -54,6 +84,18 @@ LinkMutator::LinkMutator(Config &config) : index(0) {
         section,
         "weight_max",
         30.0);
+    mutation_rate = config.getDouble(
+        section,
+        "mutation_rate",
+        0.3);
+    mutation_power = config.getDouble(
+        section,
+        "mutation_power",
+        0.8);
+    replace_rate = config.getDouble(
+        section,
+        "replace_rate",
+        0.05);
 }
 
 LinkGene LinkMutator::new_link(int input_id, int output_id) {
@@ -61,6 +103,24 @@ LinkGene LinkMutator::new_link(int input_id, int output_id) {
     double weight = clamp(new_value(mean, std), min, max);
 
     return {{input_id, output_id}, weight, true};
+}
+
+void LinkMutator::mutate(LinkGene &link) {
+    RNG rng;
+    double p = rng.uniform();
+    
+    // Mutate the weight value
+    if (p < replace_rate) {
+        link.weight = clamp(new_value(mean, std), min, max);
+    } else if (p < mutation_rate + replace_rate) {
+        double delta = clamp(rng.gaussian(0.0, mutation_power), min, max);
+        link.weight = clamp(link.weight + delta, min, max);
+    }
+
+    // Mutate the link's enabled status
+    if (rng.uniform() < mutation_rate) {
+        link.is_enabled = rng.uniform() < 0.5;
+    }
 }
 
 double new_value(double mean, double std) {
