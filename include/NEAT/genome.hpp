@@ -18,15 +18,16 @@ class Genome {
         int genome_id;
 
         Genome(int genome_id, Config &config);
+        void config_new(Config &config);
 
         // Getters
         int num_inputs() const;
         int num_outputs() const;
         int &num_hidden();
         float fitness() const;
-        vector<NeuronGene> neurons();
+        vector<NeuronGene>& neurons();
         const vector<NeuronGene>& neurons() const;
-        vector<LinkGene> links();
+        vector<LinkGene>& links();
         const vector<LinkGene>& links() const;
 
         void add_neuron(const NeuronGene &neuron);
@@ -68,7 +69,7 @@ Genome crossover(const Genome &g1, const Genome &g2, Config &config, GenomeIndex
 
 int choose_random_input_or_hidden(const vector<NeuronGene> &neurons, int num_outputs);
 int choose_random_output_or_hidden(const vector<NeuronGene> &neurons);
-vector<NeuronGene>::iterator choose_random_hidden(const vector<NeuronGene> &neurons, int num_outputs);
+vector<NeuronGene>::iterator choose_random_hidden(vector<NeuronGene> &neurons, const int num_outputs);
 
 bool is_cyclic(const vector<LinkGene> &links, int input_id, int output_id);
 

@@ -2,9 +2,10 @@
 
 #include "NEAT/genome.hpp"
 #include "NEAT/rng.hpp"
+#include <algorithm>
 
-Genome::Genome(int genome_id, Config &config) : 
-    genome_id(genome_id), neuron_mutator(config), link_mutator(config) {
+Genome::Genome(int genome_id, Config &config) : genome_id(genome_id), 
+    neuron_mutator(config), link_mutator(config) {
     _num_inputs = config.getInt(
         "DefaultGenome", 
         "num_inputs", 
@@ -17,9 +18,12 @@ Genome::Genome(int genome_id, Config &config) :
         "DefaultGenome", 
         "num_hidden", 
         0);
-    
+    _neurons = {};
+    _links = {};
     _fitness = FitnessNotCalculated;
+}
 
+void Genome::config_new(Config &config) {
     // Add inputs
     for (int i = 0; i < _num_inputs; i++) {
         // Inputs have negative neuron_id
@@ -94,7 +98,7 @@ float Genome::fitness() const {
     return _fitness;
 }
 
-vector<NeuronGene> Genome::neurons() {
+vector<NeuronGene>& Genome::neurons() {
     return _neurons;
 }
 
@@ -102,7 +106,7 @@ const vector<NeuronGene>& Genome::neurons() const {
     return _neurons;
 }
 
-vector<LinkGene> Genome::links() {
+vector<LinkGene>& Genome::links() {
     return _links;
 }
 
@@ -213,7 +217,7 @@ void Genome::mutate(Config &config) {
 
     // Mutate neuron genes
     for (auto &neuron : neurons()) {
-        neuron_mutator.mutate(neuron);
+        neuron_mutator.mutate(neuron, num_outputs());
     }
 }
 
@@ -369,6 +373,7 @@ Genome crossover(const Genome &g1, const Genome &g2, Config &config, GenomeIndex
         return crossover(g2, g1, config, indexer);
     }
 
+    // Create a new genome, without neurons or links
     Genome offspring(indexer.next(), config);
 
     // Inherit neuron genes
@@ -408,7 +413,7 @@ Genome crossover(const Genome &g1, const Genome &g2, Config &config, GenomeIndex
  * @param num_outputs The number of output neurons.
  * @return The integer id of the chosen neuron.
  */
-int choose_random_input_or_neuron(const vector<NeuronGene> &neurons, int num_outputs) {
+int choose_random_input_or_hidden(const vector<NeuronGene> &neurons, int num_outputs) {
     RNG rng;
     vector<int> input_or_hidden;
     for (const auto &neuron : neurons) {
@@ -425,7 +430,7 @@ int choose_random_input_or_neuron(const vector<NeuronGene> &neurons, int num_out
  * @param neurons The neurons to choose from.
  * @return The integer id of the chosen neuron.
  */
-int choose_random_output_or_neuron(const vector<NeuronGene> &neurons) {
+int choose_random_output_or_hidden(const vector<NeuronGene> &neurons) {
     RNG rng;
     vector<int> output_or_hidden;
     for (const auto &neuron : neurons) {

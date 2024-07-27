@@ -8,6 +8,7 @@ void testGenome() {
     cout << "Testing Genome..." << endl;
     Config config("config.cfg");
     Genome genome(0, config);
+    genome.config_new(config);
     assert((
         genome.num_inputs() +
         genome.num_outputs() +

@@ -9,6 +9,9 @@ void testCrossover() {
     Genome genome1(indexer.next(), config);
     Genome genome2(indexer.next(), config);
 
+    genome1.config_new(config);
+    genome2.config_new(config);
+
     genome1.print();
     genome2.print();
 

@@ -5,6 +5,7 @@
 void testMutation() {
     Config config("config.cfg");
     Genome genome(0, config);
+    genome.config_new(config);
 
     genome.print();
 

@@ -48,7 +48,7 @@ NeuronGene NeuronMutator::new_neuron() {
     return {index++, bias, activation};
 }
 
-void NeuronMutator::mutate(NeuronGene &neuron) {
+void NeuronMutator::mutate(NeuronGene &neuron, int num_outputs) {
     RNG rng;
     double p = rng.uniform();
     
@@ -60,8 +60,9 @@ void NeuronMutator::mutate(NeuronGene &neuron) {
         neuron.bias = clamp(neuron.bias + delta, min, max);
     }
 
-    // Mutate the neuron's activation function
-    if (rng.uniform() < mutation_rate) {
+    // Mutate the neuron's activation function,
+    // but only if it's not an input or output neuron
+    if (rng.uniform() < mutation_rate && neuron.neuron_id >= num_outputs) {
         neuron.activation = (Activation) rng.next_int(3);
     }
 }
