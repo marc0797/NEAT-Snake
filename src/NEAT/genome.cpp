@@ -1,7 +1,7 @@
 // genome.cpp
 
 #include "NEAT/genome.hpp"
-#include "NEAT/rng.hpp"
+#include "rng.hpp"
 #include <algorithm>
 
 Genome::Genome(int genome_id, Config &config) : genome_id(genome_id), 

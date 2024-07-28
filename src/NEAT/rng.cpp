@@ -1,6 +1,6 @@
 // rng.cpp
 
-#include "NEAT/rng.hpp"
+#include "rng.hpp"
 
 RNG::RNG(unsigned seed) : gen(seed) {}
 

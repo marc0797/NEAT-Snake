@@ -1,7 +1,7 @@
 // neuron_gene.cpp
 
 #include "NEAT/genes.hpp"
-#include "NEAT/rng.hpp"
+#include "rng.hpp"
 #include <cassert>
 
 
