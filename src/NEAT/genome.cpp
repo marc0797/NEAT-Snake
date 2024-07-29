@@ -26,11 +26,8 @@ Genome::Genome(int genome_id, Config &config) : genome_id(genome_id),
 void Genome::config_new(Config &config) {
     // Add inputs
     for (int i = 0; i < _num_inputs; i++) {
-        // Inputs have negative neuron_id
-        double bias = new_value(
-            config.getDouble("DefaultGenome", "bias_init_mean", 0.0),
-            config.getDouble("DefaultGenome", "bias_init_stddev", 1.0));
-        _neurons.push_back({-i - 1, bias, Activation::SIGMOID});
+        // Inputs have negative neuron_id, no bias, and linear activation
+        _neurons.push_back({-i - 1, 0.0, Activation::LINEAR});
     }
 
     // Add outputs

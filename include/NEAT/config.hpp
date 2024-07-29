@@ -36,6 +36,10 @@ class Config {
             const string &key, 
             const string &default_value) const;
 
+        int population_size() const { return _population_size; }
+        int max_generations() const { return _max_generations; }
+        float survival_threshold() const { return _survival_threshold; }
+
         // Setters
         void setInt(
             const string &section, 
@@ -55,6 +59,11 @@ class Config {
     private:
         string filename;
         unordered_map<string, unordered_map<string,string>> settings;
+
+        // NEAT parameters
+        int _population_size;
+        int _max_generations;
+        float _survival_threshold;
 
         void parseLine(const string &line, string &current_section);
 

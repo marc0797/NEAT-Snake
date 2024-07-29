@@ -1,7 +1,7 @@
-// neuron_gene.hpp
+// genes.hpp
 
-#ifndef NEAT_NEURON_GENE_HPP
-#define NEAT_NEURON_GENE_HPP
+#ifndef NEAT_GENES_HPP
+#define NEAT_GENES_HPP
 
 #include <vector>
 #include "NEAT/config.hpp"
@@ -9,6 +9,7 @@
 using std::vector;
 
 enum class Activation {
+    LINEAR,
     SIGMOID,
     TANH,
     RELU,
@@ -24,6 +25,9 @@ struct NeuronGene {
     void print() const {
         string act;
         switch (activation) {
+            case Activation::LINEAR:
+                act = "LINEAR";
+                break;
             case Activation::SIGMOID:
                 act = "SIGMOID";
                 break;
@@ -115,4 +119,4 @@ double clamp(double value, double min, double max);
 NeuronGene crossover_neuron(const NeuronGene &n1, const NeuronGene &n2);
 LinkGene crossover_link(const LinkGene &l1, const LinkGene &l2);
 
-#endif // NEAT_NEURON_GENE_HPP
+#endif // NEAT_GENES_HPP
