@@ -24,6 +24,7 @@ class Genome {
         int num_inputs() const;
         int num_outputs() const;
         int &num_hidden();
+        float &fitness();
         float fitness() const;
         vector<NeuronGene>& neurons();
         const vector<NeuronGene>& neurons() const;

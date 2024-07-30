@@ -25,7 +25,15 @@ class Population {
         Population(Config &config, RNG &rng);
 
         template <typename FitnessFunction>
-        void run(FitnessFunction compute_fitness, int num_generations);
+        void run(FitnessFunction compute_fitness, int max_generations) {
+            // In each generation, calculate the fitness of each genome and
+            // reproduce the next generation
+            for (int i = 0; i < max_generations; i++) {
+                compute_fitness(_genomes.begin(), _genomes.end());
+                update_best();
+                _genomes = reproduce();
+            }
+        }
         vector<Genome> reproduce();
 
     private:

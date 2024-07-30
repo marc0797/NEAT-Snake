@@ -91,6 +91,10 @@ int& Genome::num_hidden() {
     return _num_hidden;
 }
 
+float& Genome::fitness() {
+    return _fitness;
+}
+
 float Genome::fitness() const {
     return _fitness;
 }
@@ -118,6 +122,7 @@ const vector<LinkGene>& Genome::links() const {
  */
 void Genome::add_neuron(const NeuronGene &neuron) {
     neurons().push_back(neuron);
+    neuron_mutator.next();
 }
 
 /**

@@ -1,6 +1,7 @@
 // population.cp
 
 #include "NEAT/population.hpp"
+#include <algorithm>
 
 Population::Population(Config &config, RNG &rng) : _config(config), _rng(rng) {
     // Create the initial population
@@ -17,16 +18,16 @@ Population::Population(Config &config, RNG &rng) : _config(config), _rng(rng) {
  * @param compute_fitness The fitness function to use.
  * @param max_generations The maximum number of generations to run.
  */
-template <typename FitnessFunction>
-void Population::run(FitnessFunction compute_fitness, int max_generations) {
-    // In each generation, calculate the fitness of each genome and
-    // reproduce the next generation
-    for (int i = 0; i < max_generations; i++) {
-        compute_fitness(_genomes.begin(), _genomes.end());
-        update_best();
-        _genomes = reproduce();
-    }
-}
+// template <typename FitnessFunction>
+// void Population::run(FitnessFunction compute_fitness, int max_generations) {
+//     // In each generation, calculate the fitness of each genome and
+//     // reproduce the next generation
+//     for (int i = 0; i < max_generations; i++) {
+//         compute_fitness(_genomes.begin(), _genomes.end());
+//         update_best();
+//         _genomes = reproduce();
+//     }
+// }
 
 /**
  * Reproduce the next generation of genomes.
@@ -43,8 +44,8 @@ vector<Genome> Population::reproduce() {
     vector<Genome> top_genomes(old_genomes.begin(), old_genomes.begin() + cutoff);
     int spawn_size = _config.population_size();
     
-    // Create the new population
-    vector<Genome> new_generation;
+    // Create the new population as an empty vector
+    vector<Genome> new_generation = {};
     while (spawn_size-- >= 0) {
         // Select two parents at random
         const auto& p1 = _rng.choose_from(top_genomes);

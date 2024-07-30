@@ -3,7 +3,7 @@
 #include "NEAT/config.hpp"
 
 Config::Config(const string &filename) : filename(filename) {
-    load();
+    // load();
     _population_size = getInt("NEAT", "population_size", 150);
     _max_generations = getInt("NEAT", "max_generations", 100);
     _survival_threshold = getDouble("NEAT", "survival_threshold", 0.2);

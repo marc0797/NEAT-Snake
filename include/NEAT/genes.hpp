@@ -77,6 +77,7 @@ class NeuronMutator {
     public:
         NeuronMutator(Config &config);
         NeuronGene new_neuron();
+        int next();
         void mutate(NeuronGene &neuron, int num_outputs);
     private:
         // For generating new neurons

@@ -48,6 +48,10 @@ NeuronGene NeuronMutator::new_neuron() {
     return {index++, bias, activation};
 }
 
+int NeuronMutator::next() {
+    return index++;
+}
+
 void NeuronMutator::mutate(NeuronGene &neuron, int num_outputs) {
     RNG rng;
     double p = rng.uniform();
