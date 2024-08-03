@@ -3,18 +3,10 @@
 #ifndef NEAT_GENES_HPP
 #define NEAT_GENES_HPP
 
-#include <vector>
+#include "NEAT/activations.hpp"
 #include "NEAT/config.hpp"
 
 using std::vector;
-
-enum class Activation {
-    LINEAR,
-    SIGMOID,
-    TANH,
-    RELU,
-    SOFTMAX
-};
 
 // Neuron gene, struct is easier to work with than class
 struct NeuronGene {
