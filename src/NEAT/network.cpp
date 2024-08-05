@@ -25,6 +25,13 @@ vector<double> FeedForwardNeuralNetwork::activate(const vector<double> &inputs) 
     for (const auto &neuron : neurons) {
         double sum = neuron.bias;
         for (NeuronInput input : neuron.inputs) {
+            // if (values.find(input.input_id) == values.end()) {
+            //     // Print neuron ids
+            //     for (const auto &neuron : neurons) {
+            //         cout << neuron.neuron_id << " ";
+            //     }
+            //     cout << endl;
+            // }
             assert(values.find(input.input_id) != values.end());
             sum += input.weight * values[input.input_id];
         }

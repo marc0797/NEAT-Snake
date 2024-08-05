@@ -35,16 +35,17 @@ class Population {
                 cout << "====== Running generation " << i+1 << " ======" << endl;
                 cout << "Population size: " << _genomes.size() << endl;
                 compute_fitness(_genomes.begin(), _genomes.end());
-                cout << "Computed fitness" << endl;
                 update_best();
-                cout << "Best genome fitness: " << best.fitness() << endl;
+                cout << "\t ID \tfitness" << endl;
+                cout << "\t====\t=======" << endl;
+                cout << "\t  " << best.genome_id << "\t" << best.fitness() << endl;
                 _genomes = reproduce();
 
                 // End measuring time
                 auto end = std::chrono::high_resolution_clock::now();
                 cout << "\nGeneration time: " << 
                     std::chrono::duration_cast<std::chrono::seconds>(end - start).count() 
-                    << " seconds" << endl;
+                    << " seconds\n" << endl;
             }
         }
         vector<Genome> reproduce();
