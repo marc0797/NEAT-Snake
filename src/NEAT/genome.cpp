@@ -9,7 +9,7 @@ Genome::Genome(int genome_id, Config &config) : genome_id(genome_id),
     _num_inputs = config.getInt(
         "DefaultGenome", 
         "num_inputs", 
-        1);
+        8);
     _num_outputs = config.getInt(
         "DefaultGenome", 
         "num_outputs", 
@@ -34,7 +34,7 @@ void Genome::config_new(Config &config) {
     for (int i = 0; i < _num_outputs; i++) {
         // Outputs have neuron_id 0 to num_outputs - 1
         NeuronGene neuron = neuron_mutator.new_neuron();
-        neuron.activation = Activation::SOFTMAX;
+        neuron.activation = Activation::LINEAR;
         _neurons.push_back(neuron);
     }
 

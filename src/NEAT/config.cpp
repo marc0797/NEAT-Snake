@@ -16,6 +16,7 @@ Config::Config(const string &filename) : filename(filename) {
  */
 bool Config::load() {
     // Open the file
+    filename = "../" + this->filename;
     ifstream file(filename);
     if (!file.is_open()) {
         // If the file could not be opened, print an error message and return false

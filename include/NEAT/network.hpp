@@ -38,8 +38,11 @@ class FeedForwardNeuralNetwork {
         vector<Neuron> neurons;
 };
 
-static FeedForwardNeuralNetwork create_from_genome(const Genome &genome);
+FeedForwardNeuralNetwork create_from_genome(Genome &genome);
 
-vector<vector<int>> create_layers(vector<int> input_ids, vector<int> output_ids, vector<LinkGene> links);
+vector<vector<int>> create_layers(
+    vector<int> input_ids, 
+    vector<int> output_ids, 
+    const vector<LinkGene> &links);
 
 #endif // NETWORK_HPP

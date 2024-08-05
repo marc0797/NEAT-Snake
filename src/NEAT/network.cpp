@@ -47,7 +47,7 @@ vector<double> FeedForwardNeuralNetwork::activate(const vector<double> &inputs) 
  * @param genome The genome to create the network from.
  * @return The created FeedForwardNeuralNetwork.
  */
-FeedForwardNeuralNetwork create_from_genome(const Genome &genome) {
+FeedForwardNeuralNetwork create_from_genome(Genome &genome) {
     vector<int> input_ids;
     vector<int> output_ids;
 
@@ -77,7 +77,8 @@ FeedForwardNeuralNetwork create_from_genome(const Genome &genome) {
             neurons.emplace_back(Neuron{neuron_id, neuron.bias, neuron.activation, neuron_inputs});
         }
     }
-    return FeedForwardNeuralNetwork{input_ids, output_ids, neurons};
+    return FeedForwardNeuralNetwork{std::move(input_ids), 
+            std::move(output_ids), std::move(neurons)};
 }
 
 
@@ -89,7 +90,10 @@ FeedForwardNeuralNetwork create_from_genome(const Genome &genome) {
  * @param links The links of the genome associated with the network.
  * @return The layers of the network.
  */
-vector<vector<int>> create_layers(vector<int> input_ids, vector<int> output_ids, vector<LinkGene> &links) {
+vector<vector<int>> create_layers(
+    vector<int> input_ids, 
+    vector<int> output_ids, 
+    const vector<LinkGene> &links) {
     // Create the adjacency list and in-degree map
     std::unordered_map<int, std::unordered_set<int>> adjList;
     std::unordered_map<int, int> inDegree;
@@ -153,5 +157,5 @@ vector<vector<int>> create_layers(vector<int> input_ids, vector<int> output_ids,
             }
         }
     }
-    return layers;
+    return std::move(layers);
 }

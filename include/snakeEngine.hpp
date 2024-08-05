@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <deque>
 #include "rng.hpp"
+#include <iostream>
+
+using std::cout, std::endl;
 
 // Define the Direction enum class
 enum class Direction {
@@ -55,21 +58,55 @@ struct Snake {
 class SnakeEngine {
     public:
         // Constructor with default values
-        SnakeEngine(int width = 20, int height = 20, bool allow_teleport = false)
-            : width(width), height(height), allow_teleport(allow_teleport), score(0) {
-            // Initialize the snake with 3 segments at
-            // a random position in the middle of the board
-            int row = RNG{}.next_int(height - 1);
-            int col = RNG{}.next_int(width - 1);
+        SnakeEngine( 
+            int width = 20, int height = 20, 
+            bool allow_teleport = false,
+            int score = 0)
+            :
+            width(width), height(height), 
+            allow_teleport(allow_teleport), 
+            score(score) {
+            // Initialize the snake with 3 segments
+            // in the middle of the board
+            int row = height / 2;
+            int col = col / 2;
             snake.body.push_back({row, col});
             snake.grow = 2;
 
-            // Random direction for the snake
-            current_direction = static_cast<Direction>(RNG{}.next_int(3));
+            // Set initial direction to right
+            current_direction = Direction::Right;
 
             // Generate the initial food
             generate_food();
         }
+
+        // Constructor with random values
+        SnakeEngine(
+            RNG rng,
+            int width = 20, int height = 20,
+            bool allow_teleport = false,
+            int score = 0)
+            :
+            width(width), height(height),
+            allow_teleport(allow_teleport),
+            score(score) {
+            // Initialize the snake with random length
+            // between 0 and score at a random
+            // position on the board
+            int row = rng.next_int(height - 1);
+            int col = rng.next_int(width - 1);
+            snake.body.push_back({row, col});
+            snake.grow = rng.next_int(score) + 2;
+
+            // Random direction for the snake
+            current_direction = static_cast<Direction>(rng.next_int(3));
+
+            // Generate the initial food
+            generate_food();
+        }
+
+
+        // Create random engine
 
         // Returns the width of the board
         int _width() const {
@@ -84,6 +121,10 @@ class SnakeEngine {
         // Returns the snake
         const Snake& _snake() const {
             return snake;
+        }
+
+        const int _direction() const {
+            return (int)current_direction;
         }
 
         // Returns the food
@@ -149,6 +190,14 @@ class SnakeEngine {
             return GameState::Running;
         }
 
+        bool hits_wall(const Coordinates &c) const {
+            return c.row < 0 || c.row >= height || c.col < 0 || c.col >= width;
+        }
+
+        bool hits_snake(const Coordinates &c) const {
+            return std::find(snake.body.begin(), snake.body.end(), c) != snake.body.end();
+        }
+
 
     private:
         Snake snake;
@@ -210,14 +259,6 @@ class SnakeEngine {
                 food.col = rng.next_int(width - 1);
                 food.row = rng.next_int(height - 1);
             } while (hits_snake(food));
-        }
-
-        bool hits_wall(const Coordinates &c) const {
-            return c.row < 0 || c.row >= height || c.col < 0 || c.col >= width;
-        }
-
-        bool hits_snake(const Coordinates &c) {
-            return std::find(snake.body.begin(), snake.body.end(), c) != snake.body.end();
         }
 };
 
