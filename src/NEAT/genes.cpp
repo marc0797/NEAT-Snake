@@ -123,9 +123,9 @@ void LinkMutator::mutate(LinkGene &link) {
     }
 
     // Mutate the link's enabled status
-    if (rng.uniform() < mutation_rate) {
-        link.is_enabled = rng.uniform() < 0.5;
-    }
+    // if (rng.uniform() < mutation_rate) {
+    //     link.is_enabled = rng.uniform() < 0.5;
+    // }
 }
 
 double new_value(double mean, double std) {

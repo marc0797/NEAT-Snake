@@ -75,33 +75,38 @@ FeedForwardNeuralNetwork create_from_genome(Genome &genome) {
         create_layers(input_ids, output_ids, genome.links());
 
     vector<Neuron> neurons;
+    vector<int> neuron_ids;
     for (const auto &layer : layers) {
         for (int neuron_id : layer) {
             vector<NeuronInput> neuron_inputs;
             for (auto link : genome.links()) {
                 LinkId link_id = link.link_id;
-                if (neuron_id == link_id.output_id)
+                // If the link is enabled and the input neuron is a previous layer,
+                // add the input to the neuron.
+                if (neuron_id == link_id.output_id &&
+                    std::find(neuron_ids.begin(), neuron_ids.end(), link_id.input_id) != neuron_ids.end())
                     neuron_inputs.emplace_back(NeuronInput{link_id.input_id, link.weight});
             }
             auto neuron_opt = genome.find_neuron(neuron_id);
             assert(neuron_opt.has_value());
             NeuronGene neuron = neuron_opt.value();
             neurons.emplace_back(Neuron{neuron_id, neuron.bias, neuron.activation, neuron_inputs});
+            neuron_ids.push_back(neuron_id);
         }
     }
 
     // If network has an additional hidden layer, print the neurons
-    if (neurons.size() > 11) {
-        for (const auto &neuron : neurons) {
-            cout << "Neuron: " << neuron.neuron_id << endl;
-            cout << "Inputs: " << endl;
-            for (const auto &input : neuron.inputs) {
-                cout << "Input: " << input.input_id << " Weight: " << input.weight << endl;
-            }
-            cout << endl;
-        }
-        assert(false);
-    }
+    // if (neurons.size() > 11) {
+    //     for (const auto &neuron : neurons) {
+    //         cout << "Neuron: " << neuron.neuron_id << endl;
+    //         cout << "Inputs: " << endl;
+    //         for (const auto &input : neuron.inputs) {
+    //             cout << "Input: " << input.input_id << " Weight: " << input.weight << endl;
+    //         }
+    //         cout << endl;
+    //     }
+    //     assert(false);
+    // }
 
     return FeedForwardNeuralNetwork{std::move(input_ids), 
             std::move(output_ids), std::move(neurons)};
