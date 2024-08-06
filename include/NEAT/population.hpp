@@ -44,7 +44,7 @@ class Population {
                 // End measuring time
                 auto end = std::chrono::high_resolution_clock::now();
                 cout << "\nGeneration time: " << 
-                    std::chrono::duration_cast<std::chrono::seconds>(end - start).count() 
+                    std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()/1000.0
                     << " seconds\n" << endl;
             }
         }

@@ -26,9 +26,14 @@ vector<double> FeedForwardNeuralNetwork::activate(const vector<double> &inputs) 
         double sum = neuron.bias;
         for (NeuronInput input : neuron.inputs) {
             // if (values.find(input.input_id) == values.end()) {
-            //     // Print neuron ids
+            //     // Print neurons
             //     for (const auto &neuron : neurons) {
-            //         cout << neuron.neuron_id << " ";
+            //         cout << "Neuron: " << neuron.neuron_id << endl;
+            //         cout << "Inputs: " << endl;
+            //         for (const auto &input : neuron.inputs) {
+            //             cout << "Input: " << input.input_id << " Weight: " << input.weight << endl;
+            //         }
+            //         cout << endl;
             //     }
             //     cout << endl;
             // }
@@ -84,6 +89,20 @@ FeedForwardNeuralNetwork create_from_genome(Genome &genome) {
             neurons.emplace_back(Neuron{neuron_id, neuron.bias, neuron.activation, neuron_inputs});
         }
     }
+
+    // If network has an additional hidden layer, print the neurons
+    if (neurons.size() > 11) {
+        for (const auto &neuron : neurons) {
+            cout << "Neuron: " << neuron.neuron_id << endl;
+            cout << "Inputs: " << endl;
+            for (const auto &input : neuron.inputs) {
+                cout << "Input: " << input.input_id << " Weight: " << input.weight << endl;
+            }
+            cout << endl;
+        }
+        assert(false);
+    }
+
     return FeedForwardNeuralNetwork{std::move(input_ids), 
             std::move(output_ids), std::move(neurons)};
 }
