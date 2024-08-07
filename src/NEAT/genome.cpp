@@ -383,7 +383,7 @@ std::ostream& operator<<(std::ostream &os, const Genome &g) {
     }
 
     // Print the fitness
-    os << g._fitness;
+    os << g._fitness << "\n";
 
     return os;
 }

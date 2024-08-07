@@ -78,7 +78,7 @@ vector<Genome> Population::reproduce() {
     
     // Create the new population as an empty vector
     vector<Genome> new_generation = {};
-    while (spawn_size-- >= 0) {
+    while (spawn_size-- > 0) {
         // Select two parents at random
         const auto& p1 = _rng.choose_from(top_genomes);
         const auto& p2 = _rng.choose_from(top_genomes);
