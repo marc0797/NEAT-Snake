@@ -25,5 +25,11 @@ int main() {
     cout << "Best genome: " << population.best_genome().genome_id << endl;
     cout << "Fitness: " << population.best_genome().fitness() << endl;
 
+    // Save the population to a file
+    string formatted_string = "population_" + std::to_string(config.population_size())
+         + "_" + std::to_string(config.max_generations()) + ".txt";
+
+    population.save_file(formatted_string);
+
     return 0;
 }

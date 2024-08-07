@@ -18,6 +18,11 @@ class Genome {
         int genome_id;
 
         Genome(int genome_id, Config &config);
+
+        // Default constructor with empty genome
+        Genome() : _num_inputs(0), _num_outputs(0), 
+            _num_hidden(0), _fitness(FitnessNotCalculated) {}
+
         void config_new(Config &config);
 
         // Getters
@@ -43,7 +48,9 @@ class Genome {
         void mutate_remove_link();
 
         void print() const;
-        
+
+        friend std::ostream& operator<<(std::ostream &os, const Genome &g);
+        friend std::istream& operator>>(std::istream &is, Genome &g);
 
     private:
         int _num_inputs;

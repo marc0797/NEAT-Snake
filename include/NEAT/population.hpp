@@ -24,6 +24,7 @@ class Population {
          * 
          */
         Population(Config &config, RNG &rng);
+        Population(const string &filename);
 
         template <typename FitnessFunction>
         void run(FitnessFunction compute_fitness, int max_generations) {
@@ -51,6 +52,8 @@ class Population {
         vector<Genome> reproduce();
 
         const Genome &best_genome() const { return best; }
+
+        bool save_file(const string &filename) const;
 
     private:
         Config _config;

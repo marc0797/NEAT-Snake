@@ -3,11 +3,43 @@
 #include "NEAT/population.hpp"
 #include <algorithm>
 
+/**
+ * Create a new population.
+ * 
+ * @param config The configuration for the genetic algorithm.
+ * @param rng The random number generator to use.
+ * @return A new population.
+ */
 Population::Population(Config &config, RNG &rng) : _config(config), _rng(rng) {
     // Create the initial population
     for (int i = 0; i < _config.population_size(); i++) {
         Genome genome(indexer.next(), _config);
         genome.config_new(_config);
+        _genomes.push_back(genome);
+    }
+}
+
+/**
+ * Load a population from a file.
+ * 
+ * @param filename The name of the file to load the population from.
+ * @return A new population.
+ */
+Population::Population(const string &filename) :
+    _config(Config("config_" + filename)) {
+    _rng = RNG();
+    // Load the population from the file
+    ifstream file(filename);
+
+    // Initialize the GenomeIndexer and genomes
+    indexer = GenomeIndexer();
+
+    int genome_count;
+    file >> genome_count;
+    for (int i = 0; i < genome_count; i++) {
+        indexer.next();
+        Genome genome;
+        file >> genome;
         _genomes.push_back(genome);
     }
 }
@@ -81,4 +113,33 @@ vector<Genome> Population::sort_by_fitness(vector<Genome> &genomes) {
         return a.fitness() > b.fitness();
     });
     return genomes;
+}
+
+/**
+ * Save the population to a file.
+ * 
+ * @param filename The name of the file to save the population to.
+ * @return true if the population was successfully saved, false otherwise.
+ */
+bool Population::save_file(const string &filename) const {
+    // Open the file
+    ofstream file(filename);
+    if (!file.is_open()) {
+        // If the file could not be opened, print an error message and return false
+        cerr << "Could not open file: " << filename << endl;
+        return false;
+    }
+
+    // Save the configuration to the file
+    _config.save("config_" + filename);
+
+    // Write the genomes to the file
+    file << _genomes.size() << endl;
+    for (const auto &genome : _genomes) {
+        file << genome;
+    }
+
+    file.close();
+
+    return true;
 }
