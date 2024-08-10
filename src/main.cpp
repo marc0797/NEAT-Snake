@@ -162,9 +162,9 @@ int main(int argc, char **argv) {
         sf::VideoMode(window_size, window_size), 
         "Snake Game");
 
-    auto controller = make_controller(argv[1]);
     Ticker ticker{FPS};
     SnakeEngine engine{WIDTH, HEIGHT, ALLOW_TELEPORT};
+    auto controller = make_controller(argv[1], engine);
     GameRenderer renderer{window, engine, GameRendererConfig{}};
     GameState state = GameState::Running;
 
@@ -180,13 +180,14 @@ int main(int argc, char **argv) {
         }
 
         if (ticker.tick()) {
-            state = engine.process(controller->get_action());
+            Action action = controller->get_action();
+            state = engine.process(action);
         }
 
         if (state != GameState::Running) {
             // If state is win, print a message on the window, and freeze the screen
             sf::Font font;
-            font.loadFromFile("assets/Arial.ttf");
+            font.loadFromFile("../assets/Arial.ttf");
             sf::Text text;
             text.setFont(font);
             if (state == GameState::GameOver) {

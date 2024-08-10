@@ -125,7 +125,7 @@ class NeuronMutator {
 
         NeuronGene new_neuron();
         int next();
-        void mutate(NeuronGene &neuron, int num_outputs);
+        void mutate(NeuronGene &neuron);
 
         friend std::ostream& operator<<(std::ostream &os, const NeuronMutator &n);
         friend std::istream& operator>>(std::istream &is, NeuronMutator &n);

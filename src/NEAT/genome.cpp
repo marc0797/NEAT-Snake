@@ -34,7 +34,8 @@ void Genome::config_new(Config &config) {
     for (int i = 0; i < _num_outputs; i++) {
         // Outputs have neuron_id 0 to num_outputs - 1
         NeuronGene neuron = neuron_mutator.new_neuron();
-        neuron.activation = Activation::LINEAR;
+        neuron.bias = 0.0;
+        neuron.activation = Activation::SIGMOID;
         _neurons.push_back(neuron);
     }
 
@@ -219,7 +220,8 @@ void Genome::mutate(Config &config) {
 
     // Mutate neuron genes
     for (auto &neuron : neurons()) {
-        neuron_mutator.mutate(neuron, num_outputs());
+        if (neuron.neuron_id >= num_outputs())
+            neuron_mutator.mutate(neuron);
     }
 }
 

@@ -56,6 +56,18 @@ class Config {
             const string &key, 
             const string &value);
 
+        friend std::ostream &operator<<(std::ostream &os, const Config &config) {
+            // Print all settings
+            for (const auto &section : config.settings) {
+                os << "[" << section.first << "]" << endl;
+                for (const auto &setting : section.second) {
+                    os << setting.first << " = " << setting.second << endl;
+                }
+            }
+
+            return os;
+        }
+
     private:
         string filename;
         unordered_map<string, unordered_map<string,string>> settings;

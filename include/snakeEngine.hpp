@@ -59,7 +59,7 @@ class SnakeEngine {
     public:
         // Constructor with default values
         SnakeEngine( 
-            int width = 20, int height = 20, 
+            int width = 30, int height = 30, 
             bool allow_teleport = false,
             int score = 0)
             :
@@ -69,7 +69,7 @@ class SnakeEngine {
             // Initialize the snake with 3 segments
             // in the middle of the board
             int row = height / 2;
-            int col = col / 2;
+            int col = width / 2;
             snake.body.push_back({row, col});
             snake.grow = 2;
 
@@ -83,7 +83,7 @@ class SnakeEngine {
         // Constructor with random values
         SnakeEngine(
             RNG rng,
-            int width = 20, int height = 20,
+            int width = 30, int height = 30,
             bool allow_teleport = false,
             int score = 0)
             :

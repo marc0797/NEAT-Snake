@@ -52,7 +52,7 @@ int NeuronMutator::next() {
     return index++;
 }
 
-void NeuronMutator::mutate(NeuronGene &neuron, int num_outputs) {
+void NeuronMutator::mutate(NeuronGene &neuron) {
     RNG rng;
     double p = rng.uniform();
     
@@ -66,7 +66,7 @@ void NeuronMutator::mutate(NeuronGene &neuron, int num_outputs) {
 
     // Mutate the neuron's activation function,
     // but only if it's not an input or output neuron
-    if (rng.uniform() < mutation_rate && neuron.neuron_id >= num_outputs) {
+    if (rng.uniform() < mutation_rate) {
         neuron.activation = (Activation) rng.next_int(3);
     }
 }

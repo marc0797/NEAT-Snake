@@ -23,6 +23,10 @@ vector<double> FeedForwardNeuralNetwork::activate(const vector<double> &inputs) 
     }
 
     for (const auto &neuron : neurons) {
+        if (neuron.neuron_id < 0)
+            continue;
+        // cout << "Neuron: " << neuron.neuron_id << endl;
+        // cout << "Bias: " << neuron.bias << endl;
         double sum = neuron.bias;
         for (NeuronInput input : neuron.inputs) {
             // if (values.find(input.input_id) == values.end()) {
@@ -38,10 +42,13 @@ vector<double> FeedForwardNeuralNetwork::activate(const vector<double> &inputs) 
             //     cout << endl;
             // }
             assert(values.find(input.input_id) != values.end());
+            // cout << "Input: " << input.input_id << " Weight: " << input.weight << endl;
             sum += input.weight * values[input.input_id];
         }
         // Apply the activation function
+        // cout << "Sum: " << sum << endl;
         sum = ActivationFn{sum}(neuron.activation);
+        // cout << "Activation: " << sum << endl;
         values[neuron.neuron_id] = sum;
     }
 

@@ -39,7 +39,8 @@ class Population {
                 update_best();
                 cout << "\t ID \tfitness" << endl;
                 cout << "\t====\t=======" << endl;
-                cout << "\t  " << best.genome_id << "\t" << best.fitness() << endl;
+                cout << "\t  " << best.genome_id << "\t" << 
+                    std::to_string(best.fitness()) << endl;
                 _genomes = reproduce();
 
                 // End measuring time

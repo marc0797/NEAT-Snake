@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "snakeEngine.hpp"
-#include "NEAT/genome.hpp"
+#include "NEAT/population.hpp"
 #include "NEAT/network.hpp"
 #include <memory>
 
@@ -47,8 +47,24 @@ class KeyboardController : public Controller {
 
 class AIController : public Controller {
     public:
-        AIController(SnakeEngine engine, FeedForwardNeuralNetwork nn) :
-            engine(engine), nn(nn) {}
+        AIController(SnakeEngine &engine, FeedForwardNeuralNetwork nn) :
+            engine(engine), nn(nn), growFPS(0) {}
+
+        void on_key_pressed(sf::Event &event) override {
+            if (event.type == sf::Event::KeyPressed) {
+                switch(event.key.code) {
+                    case sf::Keyboard::Up:
+                        growFPS += 5;
+                        break;
+                    case sf::Keyboard::Down:
+                        growFPS -= 5;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        
         Action get_action() override {
             auto inputs = extract_inputs(engine);
             auto outputs = nn.activate(inputs);
@@ -60,6 +76,16 @@ class AIController : public Controller {
                     max_index = i;
                 }
             }
+            // cout << "Inputs: [ ";
+            // for (auto input : inputs) {
+            //     cout << input << " ";
+            // }
+            // cout << "]";
+            // cout << "\tOutputs: [ ";
+            // for (auto output : outputs) {
+            //     cout << output << " ";
+            // }
+            // cout << "]" << endl;
             return static_cast<Action>(max_index);
         }
 
@@ -88,33 +114,47 @@ class AIController : public Controller {
             // Add the (normalized) distances to the wall or snake body
             for (int i = 0; i < 4; i++) {
                 int rel_direction = (engine._direction() + i) % 4;
-                int distance = 0;
+                float distance = 0.0;
                 Coordinates current = head;
-                while (!engine.hits_wall(current) && !engine.hits_snake(current)) {
-                    distance++;
-                    current.row += offsets[rel_direction].row;
-                    current.col += offsets[rel_direction].col;
+                current.row += offsets[rel_direction].row;
+                current.col += offsets[rel_direction].col;
+                // do {
+                //     distance++;
+                //     current.row += offsets[rel_direction].row;
+                //     current.col += offsets[rel_direction].col;
+                // } while(!engine.hits_wall(current) && !engine.hits_snake(current));
+                // inputs.push_back(std::exp(-distance / engine._width()));
+                if (engine.hits_wall(current) || engine.hits_snake(current)) {
+                    inputs.push_back(1.0);
                 }
-                inputs.push_back(1.0 / (1.0 + distance));
+                else {
+                    inputs.push_back(0.0);
+                }
             }
 
             return inputs;
         }
     private:
-        SnakeEngine engine;
+        SnakeEngine &engine;
         FeedForwardNeuralNetwork nn;
+        int growFPS;
 };
 
-std::unique_ptr<Controller> make_controller(const std::string &input) {
+std::unique_ptr<Controller> make_controller(const std::string &input, SnakeEngine &engine) {
     if (input == "player") {
         return std::make_unique<KeyboardController>();
+    } else if (input == "ai") {
+        Population population("population.txt");
+        Genome best_genome = population.best_genome();
+        FeedForwardNeuralNetwork nn = create_from_genome(best_genome);
+        return std::make_unique<AIController>(engine, std::move(nn));
     }
     else throw std::invalid_argument("Unknown controller type: " + input);
 }
 
 void update_fitness(Genome &genome) {
     RNG rng;
-    int max_steps = 10000;
+    int max_steps = 1000;
 
     SnakeEngine engine(rng);
     FeedForwardNeuralNetwork nn =

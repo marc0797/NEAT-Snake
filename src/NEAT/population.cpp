@@ -34,6 +34,9 @@ Population::Population(const string &filename) :
     // Initialize the GenomeIndexer and genomes
     indexer = GenomeIndexer();
 
+    // Load the best genome
+    file >> best;
+
     int genome_count;
     file >> genome_count;
     for (int i = 0; i < genome_count; i++) {
@@ -42,6 +45,8 @@ Population::Population(const string &filename) :
         file >> genome;
         _genomes.push_back(genome);
     }
+
+    file.close();
 }
 
 /**
@@ -132,6 +137,9 @@ bool Population::save_file(const string &filename) const {
 
     // Save the configuration to the file
     _config.save("config_" + filename);
+
+    // Save the best genome
+    file << best;
 
     // Write the genomes to the file
     file << _genomes.size() << endl;
