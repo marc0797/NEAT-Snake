@@ -5,6 +5,7 @@
 
 #include "NEAT/config.hpp"
 #include "NEAT/genome.hpp"
+#include "NEAT/species.hpp"
 #include "rng.hpp"
 #include <chrono>
 
@@ -34,13 +35,29 @@ class Population {
                 // Start measuring time
                 auto start = std::chrono::high_resolution_clock::now();
                 cout << "====== Running generation " << i+1 << " ======" << endl;
-                cout << "Population size: " << _genomes.size() << endl;
+                cout << "Population of " << _genomes.size() << 
+                    " members in " << "species." << endl;
                 compute_fitness(_genomes.begin(), _genomes.end());
                 update_best();
-                cout << "\t ID \tfitness" << endl;
-                cout << "\t====\t=======" << endl;
-                cout << "\t  " << best.genome_id << "\t" << 
-                    std::to_string(best.fitness()) << endl;
+                cout << "\t ID \tage\tsize\tfitness\tadj fit\tstag" << endl;
+                cout << "\t====\t====\t====\t=======\t=======\t====" << endl;
+                for (auto &species : _species) {
+                    species.adjust_fitness();
+                    float prev_fitness = species.best().fitness();
+                    species.update_best();
+                    if (species.best().fitness() > prev_fitness) {
+                        species._stagnation = 0;
+                    } else {
+                        species._stagnation++;
+                    }
+
+                    cout << "\t" << species.id();
+                    cout << "\t" << species._age++;
+                    cout << "\t" << species.members().size();
+                    cout << "\t" << species.best().fitness();
+                    cout << "\t" << species.adjusted_fitness();
+                    cout << "\t" << species._stagnation << endl;
+                }
                 _genomes = reproduce();
 
                 // End measuring time
@@ -62,7 +79,7 @@ class Population {
         GenomeIndexer indexer;
         Genome best = Genome(-1, _config);
         vector<Genome> _genomes;
-        vector<Genome> _species;
+        vector<Species> _species;
         
         void update_best();
         vector<Genome> sort_by_fitness(vector<Genome> &genomes);

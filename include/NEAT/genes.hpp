@@ -70,6 +70,10 @@ struct LinkId {
         return input_id == rhs.input_id && output_id == rhs.output_id;
     }
 
+    bool operator<(const LinkId &rhs) const {
+        return input_id < rhs.input_id || (input_id == rhs.input_id && output_id < rhs.output_id);
+    }
+
 };
 
 // Link gene

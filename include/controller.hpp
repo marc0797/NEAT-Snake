@@ -111,6 +111,20 @@ class AIController : public Controller {
                 }
             }
 
+            // // Normalized distance to the food
+            // inputs.push_back((food.row - head.row) / engine._height());
+            // inputs.push_back((food.col - head.col) / engine._width());
+
+            // // Snake's current direction
+            // for (int i = 0; i < 4; i++) {
+            //     if (i == engine._direction()) {
+            //         inputs.push_back(1.0);
+            //     }
+            //     else {
+            //         inputs.push_back(0.0);
+            //     }
+            // }
+
             // Add the (normalized) distances to the wall or snake body
             for (int i = 0; i < 4; i++) {
                 int rel_direction = (engine._direction() + i) % 4;

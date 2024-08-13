@@ -113,7 +113,7 @@ class GameRenderer {
 
         void draw_score() {
             sf::Font font;
-            font.loadFromFile("assets/Arial.ttf");
+            font.loadFromFile("../assets/Arial.ttf");
             sf::Text text;
             text.setFont(font);
             text.setString("Score: " + std::to_string(engine._score()));

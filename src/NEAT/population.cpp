@@ -17,6 +17,12 @@ Population::Population(Config &config, RNG &rng) : _config(config), _rng(rng) {
         genome.config_new(_config);
         _genomes.push_back(genome);
     }
+
+    // Create a single species, and add all the genomes to it
+    _species.push_back(Species(0, _genomes[0]));
+    for (int i = 1; i < _genomes.size(); i++) {
+        _species[0].add_member(_genomes[i]);
+    }
 }
 
 /**
@@ -46,6 +52,14 @@ Population::Population(const string &filename) :
         _genomes.push_back(genome);
     }
 
+    int species_count;
+    file >> species_count;
+    for (int i = 0; i < species_count; i++) {
+        Species species;
+        file >> species;
+        _species.push_back(species);
+    }
+
     file.close();
 }
 
@@ -72,24 +86,44 @@ Population::Population(const string &filename) :
  * @return The next generation of genomes.
  */
 vector<Genome> Population::reproduce() {
-    // Sort the genomes by fitness
-    auto old_genomes = sort_by_fitness(_genomes);
-    int cutoff = std::ceil(
-        _config.survival_threshold() * old_genomes.size());
+    vector<Genome> parents = {};
 
-    // Keep the top genomes
-    vector<Genome> top_genomes(old_genomes.begin(), old_genomes.begin() + cutoff);
-    int spawn_size = _config.population_size();
+    for (auto &species : _species) {
+        auto old_genomes = sort_by_fitness(species.members());
+        int cutoff = std::ceil(
+            _config.survival_threshold() * old_genomes.size());
+
+        // Keep the top genomes
+        parents.insert(parents.end(), old_genomes.begin(), old_genomes.begin() + cutoff);
+
+        // Clear the species members
+        species.clear();
+    }
     
+    int spawn_size = _config.population_size();
+
     // Create the new population as an empty vector
     vector<Genome> new_generation = {};
     while (spawn_size-- > 0) {
         // Select two parents at random
-        const auto& p1 = _rng.choose_from(top_genomes);
-        const auto& p2 = _rng.choose_from(top_genomes);
+        const auto& p1 = _rng.choose_from(parents);
+        const auto& p2 = _rng.choose_from(parents);
         Genome offspring = crossover(p1, p2, _config, indexer);
         offspring.mutate(_config);
         new_generation.push_back(offspring);
+
+        // Place the offspring in a species
+        bool found = false;
+        for (auto &species : _species) {
+            if (is_compatible(species.representative(), offspring, _config)) {
+                species.add_member(offspring);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            _species.push_back(Species(_species.size(), offspring));
+        }
     }
     return new_generation;
 }
@@ -145,6 +179,12 @@ bool Population::save_file(const string &filename) const {
     file << _genomes.size() << endl;
     for (const auto &genome : _genomes) {
         file << genome;
+    }
+
+    // Write the species to the file
+    file << _species.size() << endl;
+    for (const auto &species : _species) {
+        file << species;
     }
 
     file.close();

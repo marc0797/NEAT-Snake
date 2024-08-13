@@ -39,6 +39,9 @@ class Config {
         int population_size() const { return _population_size; }
         int max_generations() const { return _max_generations; }
         float survival_threshold() const { return _survival_threshold; }
+        double c1() const { return _c1; }
+        double c2() const { return _c2; }
+        double threshold() const { return _threshold; }
 
         // Setters
         void setInt(
@@ -76,6 +79,11 @@ class Config {
         int _population_size;
         int _max_generations;
         float _survival_threshold;
+
+        // Speciation parameters
+        double _c1;
+        double _c2;
+        double _threshold;
 
         void parseLine(const string &line, string &current_section);
 
