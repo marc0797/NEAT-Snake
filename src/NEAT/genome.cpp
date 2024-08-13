@@ -9,7 +9,7 @@ Genome::Genome(int genome_id, Config &config) : genome_id(genome_id),
     _num_inputs = config.getInt(
         "DefaultGenome", 
         "num_inputs", 
-        1);
+        8);
     _num_outputs = config.getInt(
         "DefaultGenome", 
         "num_outputs", 
@@ -34,7 +34,8 @@ void Genome::config_new(Config &config) {
     for (int i = 0; i < _num_outputs; i++) {
         // Outputs have neuron_id 0 to num_outputs - 1
         NeuronGene neuron = neuron_mutator.new_neuron();
-        neuron.activation = Activation::SOFTMAX;
+        neuron.bias = 0.0;
+        neuron.activation = Activation::SIGMOID;
         _neurons.push_back(neuron);
     }
 
@@ -219,7 +220,8 @@ void Genome::mutate(Config &config) {
 
     // Mutate neuron genes
     for (auto &neuron : neurons()) {
-        neuron_mutator.mutate(neuron, num_outputs());
+        if (neuron.neuron_id >= num_outputs())
+            neuron_mutator.mutate(neuron);
     }
 }
 
@@ -348,6 +350,88 @@ void Genome::print() const {
         link.print();
     }
     cout << "\n\n";
+}
+
+/**
+ * Overload the << operator for Genome.
+ * 
+ * @param os The output stream.
+ * @param g The genome.
+ * @return The output stream.
+ */
+std::ostream& operator<<(std::ostream &os, const Genome &g) {
+    // Print the genome to the output stream
+    os << g.genome_id << "\n";
+    os << g._num_inputs << "\n";
+    os << g._num_outputs << "\n";
+    os << g._num_hidden << "\n";
+
+    // Print the NeuronMutator and neurons
+    os << g.neuron_mutator << "\n";
+
+    os << g._neurons.size() << "\n";
+
+    for (const auto &neuron : g._neurons) {
+        os << neuron;
+    }
+
+    // Print the LinkMutator and links
+    os << g.link_mutator << "\n";
+
+    os << g._links.size() << "\n";
+
+    for (const auto &link : g._links) {
+        os << link;
+    }
+
+    // Print the fitness
+    os << g._fitness << "\n";
+
+    return os;
+}
+
+/**
+ * Overload the >> operator for Genome.
+ * 
+ * @param is The input stream.
+ * @param g The genome.
+ * @return The input stream.
+ */
+std::istream& operator>>(std::istream &is, Genome &g) {
+    // Read the genome from the input stream
+    is >> g.genome_id;
+    is >> g._num_inputs;
+    is >> g._num_outputs;
+    is >> g._num_hidden;
+
+    // Read the NeuronMutator and neurons
+    is >> g.neuron_mutator;
+
+    int num_neurons;
+    is >> num_neurons;
+
+    for (int i = 0; i < num_neurons; i++) {
+        NeuronGene neuron;
+        is >> neuron;
+        g._neurons.push_back(neuron);
+    }
+
+    // Read the links
+    is >> g.link_mutator;
+
+    int num_links;
+    is >> num_links;
+
+    for (int i = 0; i < num_links; i++) {
+        LinkGene link;
+        is >> link;
+        g._links.push_back(link);
+    }
+
+    // Read the fitness
+    is >> g._fitness;
+
+    return is;
 }
 
 GenomeIndexer::GenomeIndexer() : index(0) {}

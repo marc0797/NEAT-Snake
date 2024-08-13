@@ -6,6 +6,7 @@
 #include "NEAT/config.hpp"
 #include "NEAT/genome.hpp"
 #include "rng.hpp"
+#include <chrono>
 
 class Population {
     public:
@@ -23,18 +24,37 @@ class Population {
          * 
          */
         Population(Config &config, RNG &rng);
+        Population(const string &filename);
 
         template <typename FitnessFunction>
         void run(FitnessFunction compute_fitness, int max_generations) {
             // In each generation, calculate the fitness of each genome and
             // reproduce the next generation
             for (int i = 0; i < max_generations; i++) {
+                // Start measuring time
+                auto start = std::chrono::high_resolution_clock::now();
+                cout << "====== Running generation " << i+1 << " ======" << endl;
+                cout << "Population size: " << _genomes.size() << endl;
                 compute_fitness(_genomes.begin(), _genomes.end());
                 update_best();
+                cout << "\t ID \tfitness" << endl;
+                cout << "\t====\t=======" << endl;
+                cout << "\t  " << best.genome_id << "\t" << 
+                    std::to_string(best.fitness()) << endl;
                 _genomes = reproduce();
+
+                // End measuring time
+                auto end = std::chrono::high_resolution_clock::now();
+                cout << "\nGeneration time: " << 
+                    std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()/1000.0
+                    << " seconds\n" << endl;
             }
         }
         vector<Genome> reproduce();
+
+        const Genome &best_genome() const { return best; }
+
+        bool save_file(const string &filename) const;
 
     private:
         Config _config;

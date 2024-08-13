@@ -29,3 +29,10 @@ endforeach()
 
 # Link SFML libraries
 target_link_libraries(NEAT_Snake sfml-system sfml-window sfml-graphics)
+
+include(FetchContent)
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+target_link_libraries(NEAT_Snake nlohmann_json::nlohmann_json)

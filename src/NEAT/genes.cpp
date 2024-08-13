@@ -52,7 +52,7 @@ int NeuronMutator::next() {
     return index++;
 }
 
-void NeuronMutator::mutate(NeuronGene &neuron, int num_outputs) {
+void NeuronMutator::mutate(NeuronGene &neuron) {
     RNG rng;
     double p = rng.uniform();
     
@@ -66,9 +66,39 @@ void NeuronMutator::mutate(NeuronGene &neuron, int num_outputs) {
 
     // Mutate the neuron's activation function,
     // but only if it's not an input or output neuron
-    if (rng.uniform() < mutation_rate && neuron.neuron_id >= num_outputs) {
+    if (rng.uniform() < mutation_rate) {
         neuron.activation = (Activation) rng.next_int(3);
     }
+}
+
+std::ostream& operator<<(std::ostream &os, const NeuronMutator &n) {
+    os << n.index << "\n";
+    os << (int) n.activation << "\n";
+    os << n.mean << "\n";
+    os << n.std << "\n";
+    os << n.min << "\n";
+    os << n.max << "\n";
+    os << n.mutation_rate << "\n";
+    os << n.mutation_power << "\n";
+    os << n.replace_rate << "\n";
+
+    return os;
+}
+
+std::istream& operator>>(std::istream &is, NeuronMutator &n) {
+    is >> n.index;
+    int activation;
+    is >> activation;
+    n.activation = (Activation) activation;
+    is >> n.mean;
+    is >> n.std;
+    is >> n.min;
+    is >> n.max;
+    is >> n.mutation_rate;
+    is >> n.mutation_power;
+    is >> n.replace_rate;
+
+    return is;
 }
 
 LinkMutator::LinkMutator(Config &config) : index(0) {
@@ -123,9 +153,35 @@ void LinkMutator::mutate(LinkGene &link) {
     }
 
     // Mutate the link's enabled status
-    if (rng.uniform() < mutation_rate) {
-        link.is_enabled = rng.uniform() < 0.5;
-    }
+    // if (rng.uniform() < mutation_rate) {
+    //     link.is_enabled = rng.uniform() < 0.5;
+    // }
+}
+
+std::ostream& operator<<(std::ostream &os, const LinkMutator &l) {
+    os << l.index << "\n";
+    os << l.mean << "\n";
+    os << l.std << "\n";
+    os << l.min << "\n";
+    os << l.max << "\n";
+    os << l.mutation_rate << "\n";
+    os << l.mutation_power << "\n";
+    os << l.replace_rate << "\n";
+
+    return os;
+}
+
+std::istream& operator>>(std::istream &is, LinkMutator &l) {
+    is >> l.index;
+    is >> l.mean;
+    is >> l.std;
+    is >> l.min;
+    is >> l.max;
+    is >> l.mutation_rate;
+    is >> l.mutation_power;
+    is >> l.replace_rate;
+
+    return is;
 }
 
 double new_value(double mean, double std) {

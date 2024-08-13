@@ -3,7 +3,6 @@
 #include "NEAT/config.hpp"
 
 Config::Config(const string &filename) : filename(filename) {
-    // load();
     _population_size = getInt("NEAT", "population_size", 150);
     _max_generations = getInt("NEAT", "max_generations", 100);
     _survival_threshold = getDouble("NEAT", "survival_threshold", 0.2);
@@ -16,6 +15,7 @@ Config::Config(const string &filename) : filename(filename) {
  */
 bool Config::load() {
     // Open the file
+    filename = "../" + this->filename;
     ifstream file(filename);
     if (!file.is_open()) {
         // If the file could not be opened, print an error message and return false
@@ -30,6 +30,11 @@ bool Config::load() {
         parseLine(line, current_section);
     }
     file.close();
+
+    _population_size = getInt("NEAT", "population_size", 150);
+    _max_generations = getInt("NEAT", "max_generations", 100);
+    _survival_threshold = getDouble("NEAT", "survival_threshold", 0.2);
+
     return true;
 }
 
